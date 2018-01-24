@@ -1,11 +1,15 @@
-using UnityEditor;
 using UnityEngine.Experimental.Rendering;
+
+#if UNITY_EDITOR
+using UnityEditor;
 using UnityEditor.ProjectWindowCallback;
+#endif
 
 namespace Retro3D
 {
     class Retro3DPipelineAsset : RenderPipelineAsset
     {
+#if UNITY_EDITOR
         [MenuItem("Assets/Create/Render Pipeline/Retro3D/Pipeline Asset")]
         static void CreateRetro3DPipeline()
         {
@@ -23,6 +27,7 @@ namespace Retro3D
                 AssetDatabase.CreateAsset(instance, pathName);
             }
         }
+#endif
 
         protected override IRenderPipeline InternalCreatePipeline()
         {
