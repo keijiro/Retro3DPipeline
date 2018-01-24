@@ -6,38 +6,51 @@ namespace Retro3D
 {
     public class Retro3DPipeline : RenderPipeline
     {
-        CommandBuffer _clearCommand;
+        CommandBuffer _cb;
 
         public override void Dispose()
         {
             base.Dispose();
 
-            if (_clearCommand != null) _clearCommand.Dispose();
+            if (_cb != null)
+            {
+                _cb.Dispose();
+                _cb = null;
+            }
         }
 
         public override void Render(ScriptableRenderContext context, Camera[] cameras)
         {
             base.Render(context, cameras);
 
-            if (_clearCommand == null)
-            {
-                _clearCommand = new CommandBuffer();
-                _clearCommand.name = "Clear";
-                _clearCommand.ClearRenderTarget(true, true, Color.black);
-            }
+            if (_cb == null) _cb = new CommandBuffer();
+
+            var rtDesc = new RenderTextureDescriptor(256, 224, RenderTextureFormat.RGB565, 16);
+            var rtID = Shader.PropertyToID("_LowResScreen");
 
             foreach (var camera in cameras)
             {
-                context.ExecuteCommandBuffer(_clearCommand);
+                context.SetupCameraProperties(camera);
+
+                _cb.name = "Setup";
+                _cb.GetTemporaryRT(rtID, rtDesc);
+                _cb.SetRenderTarget(rtID);
+                _cb.ClearRenderTarget(true, true, Color.black);
+                context.ExecuteCommandBuffer(_cb);
+                _cb.Clear();
 
                 var culled = new CullResults();
                 CullResults.Cull(camera, context, out culled);
-                context.SetupCameraProperties(camera);
 
                 var settings = new DrawRendererSettings(camera, new ShaderPassName("Base"));
                 var filter = new FilterRenderersSettings(true);
                 filter.renderQueueRange = RenderQueueRange.opaque;
                 context.DrawRenderers(culled.visibleRenderers, ref settings, filter);
+
+                _cb.name = "Blit";
+                _cb.Blit(rtID, BuiltinRenderTextureType.CameraTarget);
+                context.ExecuteCommandBuffer(_cb);
+                _cb.Clear();
 
                 context.Submit();
             }

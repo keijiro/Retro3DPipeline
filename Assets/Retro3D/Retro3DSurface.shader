@@ -43,7 +43,7 @@
         float2 uv = input.texcoord;
         uv = floor(uv * 256) / 256;
         half4 c = tex2D(_MainTex, uv);
-        c = floor(c * 12) / 12;
+        c = floor(c * 8) / 8;
         c.rgb *= _Color * 2;
         UNITY_APPLY_FOG(input.fogCoord, c);
         return c;
@@ -57,6 +57,7 @@
         {
             Tags { "LightMode" = "Base" }
             HLSLPROGRAM
+            #pragma multi_compile_fog
             #pragma vertex Vertex
             #pragma fragment Fragment
             ENDHLSL
