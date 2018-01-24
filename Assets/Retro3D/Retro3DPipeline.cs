@@ -35,7 +35,7 @@ namespace Retro3D
                 _cb.name = "Setup";
                 _cb.GetTemporaryRT(rtID, rtDesc);
                 _cb.SetRenderTarget(rtID);
-                _cb.ClearRenderTarget(true, true, Color.black);
+                _cb.ClearRenderTarget(true, true, camera.backgroundColor);
                 context.ExecuteCommandBuffer(_cb);
                 _cb.Clear();
 
