@@ -35,7 +35,7 @@ namespace Retro3D
             if (_cb == null) _cb = new CommandBuffer();
 
             // Constants used in the camera render loop.
-            var rtDesc = new RenderTextureDescriptor(256, 224, RenderTextureFormat.RGB565, 16);
+            var rtDesc = new RenderTextureDescriptor(256, 224, RenderTextureFormat.Default, 24);
             var rtID = Shader.PropertyToID("_LowResScreen");
 
             foreach (var camera in cameras)
