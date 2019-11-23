@@ -2,9 +2,9 @@
 // A minimal example of a custom render pipeline with the Retro3D shader.
 // https://github.com/keijiro/Retro3DPipeline
 
+using System;
 using UnityEngine;
 using UnityEngine.Rendering;
-using UnityEngine.Experimental.Rendering;
 
 namespace Retro3D
 {
@@ -16,9 +16,9 @@ namespace Retro3D
         // Rule: Clear commands right after calling ExecuteCommandBuffer.
         CommandBuffer _cb;
 
-        public override void Dispose()
+        protected override void Dispose(bool disposing)
         {
-            base.Dispose();
+            base.Dispose(disposing);
 
             if (_cb != null)
             {
@@ -27,9 +27,9 @@ namespace Retro3D
             }
         }
 
-        public override void Render(ScriptableRenderContext context, Camera[] cameras)
+        protected override void Render(ScriptableRenderContext context, Camera[] cameras)
         {
-            base.Render(context, cameras);
+            //base.Render(context, cameras);
 
             // Lazy initialization of the temporary command buffer.
             if (_cb == null) _cb = new CommandBuffer();
@@ -52,23 +52,25 @@ namespace Retro3D
                 _cb.Clear();
 
                 // Do basic culling.
-                var culled = new CullResults();
-                CullResults.Cull(camera, context, out culled);
-
-                // Render visible objects that has "Base" light mode tag.
-                var settings = new DrawRendererSettings(camera, new ShaderPassName("Base"));
-                var filter = new FilterRenderersSettings(true);
-                filter.renderQueueRange = RenderQueueRange.opaque;
-                context.DrawRenderers(culled.visibleRenderers, ref settings, filter);
+                ScriptableCullingParameters scp;
+                camera.TryGetCullingParameters(out scp);
+                var culled = context.Cull(ref scp);
+                
+                //// Render visible objects that has "Base" light mode tag.
+                var sorting = new SortingSettings(camera);
+                var settings = new DrawingSettings(new ShaderTagId("Base"), sorting);
+                var filter = FilteringSettings.defaultValue;
+                context.DrawRenderers(culled, ref settings, ref filter);
 
                 // Blit the render result to the camera destination.
                 _cb.name = "Blit";
                 _cb.Blit(rtID, BuiltinRenderTextureType.CameraTarget);
                 context.ExecuteCommandBuffer(_cb);
                 _cb.Clear();
-
+                
                 context.Submit();
             }
+
         }
     }
 }
