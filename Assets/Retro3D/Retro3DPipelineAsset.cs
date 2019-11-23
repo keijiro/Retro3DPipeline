@@ -3,6 +3,7 @@
 // https://github.com/keijiro/Retro3DPipeline
 
 using UnityEngine.Experimental.Rendering;
+using UnityEngine.Rendering;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -35,7 +36,7 @@ namespace Retro3D
         }
 #endif
 
-        protected override IRenderPipeline InternalCreatePipeline()
+        protected override UnityEngine.Rendering.RenderPipeline CreatePipeline()
         {
             return new Retro3DPipeline();
         }
