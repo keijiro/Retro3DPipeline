@@ -11,3 +11,12 @@ Desktop.ini
 # Unity
 /Library
 /Temp
+/Logs
+/obj
+
+# VS
+/.vs
+/.vscode
+
+*.sln
+*.csproj
